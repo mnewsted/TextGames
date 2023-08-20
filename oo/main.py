@@ -12,6 +12,26 @@ from oo.player import Player
 
 player = Player()
 
+
+def has_thing_in_room(current_room):
+    for thing in things:
+        if thing['location'] == current_room and not thing['on_person']:
+            print(thing['prefix'].capitalize() + ' ' + thing['name'])
+            return True
+    return False
+
+
+def print_things_in_room(current_room):
+    for thing in things:
+        if is_thing_in_room(thing, current_room):
+            print(thing['prefix'].capitalize() + ' ' + thing['name'])
+            return True
+    return False
+
+
+def is_thing_in_room(thing, current_room):
+    return thing['location'] == current_room and not thing['on_person']
+
 # functions
 def locale(current_room):
     print('You are ' + world[current_room]['prefix'] + ' ' + world[current_room]['name'] + '.')
@@ -29,7 +49,6 @@ def look_around(current_room):
 
 
 def examine_item(current_room):
-    global inventory_quantity
     global room_has_items
     global room_has_mobs
     global target
@@ -55,7 +74,7 @@ def examine_item(current_room):
                     print(' ' + mob['status_hostile'])
                 return
 
-    if room_has_items or inventory_quantity > 0 or room_has_mobs:
+    if room_has_items or player.has_things() or room_has_mobs:
         available_choices = []
         print('Things you can examine:')
         if room_has_mobs:
@@ -68,11 +87,10 @@ def examine_item(current_room):
                 if (thing['location'] == current_room and thing['on_person'] == False):
                     print(thing['name'].capitalize())
                     available_choices.append(thing['name'].lower())
-        if inventory_quantity > 0:
-            for thing in things:
-                if (thing['on_person'] == True):
-                    print(thing['name'].capitalize())
-                    available_choices.append(thing['name'].lower())
+        if player.has_things():
+            for thing in player.inventory:
+                print(thing['name'].capitalize())
+                available_choices.append(thing['name'].lower())
         print('What do you want to examine? (type the name or press ENTER for none)')
         choice = input().lower()
         if choice == '':
@@ -132,16 +150,10 @@ def show_creatures(current_room):
 
 def show_things(current_room):
     global room_has_items
-    visible_items = 0
     print('Visible items:')
-    for thing in things:
-        if (thing['location'] == current_room and thing['on_person'] == False):
-            print(thing['prefix'].capitalize() + ' ' + thing['name'])
-            visible_items = visible_items + 1
-            room_has_items = True
-    if visible_items == 0:
+    room_has_items = print_things_in_room(current_room)
+    if not room_has_items:
         print('You don\'t see anything special.')
-        room_has_items = False
 
 
 def update_things_in_room(current_room):
@@ -161,19 +173,15 @@ def update_things_in_room(current_room):
     if visible_items == 0:
         room_has_items = False
 
-
-def show_inventory(quantity):
-    if quantity > 0:
-        print('You are carrying:')
-        for thing in things:
-            if thing['on_person'] == True:
-                print(thing['prefix'].capitalize() + ' ' + thing['name'])
-    else:
-        print('You aren\'t carrying anything.')
+def take_thing(thing):
+    thing['on_person'] = True
+    player.add_thing(thing)
+    things.remove(thing)
+    # old print('You pick up ' + thing['prefix'] + ' ' + thing['name'] + '.')
+    print('You pick up the ' + thing['name'] + '.')
 
 
 def take_item(current_room):
-    global inventory_quantity
     global room_has_items
     global target
     update_things_in_room(current_room)
@@ -181,15 +189,12 @@ def take_item(current_room):
     if room_has_items:
         available_choices = []
         for thing in things:
-            if (thing['location'] == current_room and thing['on_person'] == False):
+            if is_thing_in_room(thing, current_room):
                 available_choices.append(thing['name'].lower())
         for thing in things:
             if thing['name'].lower() == target.lower():
                 if thing['moveable'] == True:
-                    thing['on_person'] = True
-                    inventory_quantity = inventory_quantity + 1
-                    # old print('You pick up ' + thing['prefix'] + ' ' + thing['name'] + '.')
-                    print('You pick up the ' + thing['name'] + '.')
+                    take_thing(thing)
                     return
                 else:
                     # old print('You can\'t take ' + thing['prefix'] + ' ' + thing['name'] + '.')
@@ -212,10 +217,7 @@ def take_item(current_room):
         for thing in things:
             if thing['name'].lower() == choice:
                 if thing['moveable'] == True:
-                    thing['on_person'] = True
-                    inventory_quantity = inventory_quantity + 1
-                    print('You pick up the ' + thing['name'] + '.')
-                    # old print('You pick up ' + thing['prefix'] + ' ' + thing['name'] + '.')
+                    take_thing(thing)
                 else:
                     print('You can\'t take the ' + thing['name'] + '.')
                     # old print('You can\'t take ' + thing['prefix'] + ' ' + thing['name'] + '.')
@@ -224,33 +226,33 @@ def take_item(current_room):
 
 
 def drop_item(current_room):
-    global inventory_quantity
     global target
 
-    if inventory_quantity == 0:
+    if not player.has_things():
         print('You aren\'t carrying anything.')
         return
 
     update_things_in_room(current_room)
     if target != '':
         if target in available_targets(current_room):
-            for thing in things:
+            for thing in player.inventory:
                 if thing['name'].lower() == target.lower():
+                    player.delete_thing(thing)
+                    things.append(thing)
                     thing['on_person'] = False
                     thing['location'] = current_room
                     user_has_items = True
                     print('You drop the ' + thing['name'] + '.')
                     # old print('You drop ' + thing['prefix'] + ' ' + thing['name'] + '.')
-                    inventory_quantity = inventory_quantity - 1
             return
         else:
             print('\"' + target + '\" is not in your inventory.')
 
-    if inventory_quantity > 0:
+    if player.has_things():
         available_choices = []
         print('Items you are carrying:')
         for thing in things:
-            if (thing['on_person'] == True):
+            if thing['on_person']:
                 print(thing['name'].capitalize())
                 available_choices.append(thing['name'].lower())
         print('What item do you want to drop? (type the item name or press ENTER for none)')
@@ -270,20 +272,18 @@ def drop_item(current_room):
                 user_has_items = True
                 print('You drop the ' + thing['name'] + '.')
                 # old print('You drop ' + thing['prefix'] + ' ' + thing['name'] + '.')
-                inventory_quantity = inventory_quantity - 1
     else:
         print('You aren\'t carrying anything.')
 
 
 def use_item(current_room):
-    global inventory_quantity
     global room_has_items
     global target
 
     update_things_in_room(current_room)
     if target != '':
         if target in available_targets(current_room):
-            if weapon_checker(target) == True:
+            if weapon_checker(target):
                 pick_up_if_weapon(target)
                 if attack_checker(current_room):
                     check_event(current_room, target)
@@ -298,17 +298,17 @@ def use_item(current_room):
         else:
             print('\"' + target + '\" is not available to use.')
 
-    if room_has_items or inventory_quantity > 0:
+    if room_has_items or player.has_things():
         available_choices = []
         print('Items you can use:')
         if room_has_items:
             for thing in things:
-                if (thing['location'] == current_room and thing['on_person'] == False):
+                if is_thing_in_room(thing, current_room):
                     print(thing['name'].capitalize())
                     available_choices.append(thing['name'].lower())
-        if inventory_quantity > 0:
+        if player.has_things():
             for thing in things:
-                if (thing['on_person'] == True):
+                if player.has_thing(thing):
                     print(thing['name'].capitalize())
                     available_choices.append(thing['name'].lower())
         print('What item do you want to use? (type the item name or press ENTER for none)')
@@ -400,7 +400,7 @@ def creature_attack(current_room):
                     if (random.randrange(1, 100) + mob['hit_bonus']) > 50:
                         damage = 10 + random.randrange(1, mob['damage'])
                         print('It hits you for ' + str(damage) + ' damage.')
-                        player.takeDamage(damage)
+                        player.take_damage(damage)
 
                     else:
                         miss = random.randrange(1, 10)
@@ -446,7 +446,6 @@ def remove_creature_fatigue(current_room):
 
 
 def weapon_checker(item):
-    global inventory_quantity
     for thing in things:
         if thing['name'].lower() == item:
             if thing['is_weapon'] == True:
@@ -456,31 +455,29 @@ def weapon_checker(item):
 
 
 def pick_up_if_weapon(item):
-    global inventory_quantity
     for thing in things:
         if thing['name'].lower() == item and thing['is_weapon'] == True:
-            if thing['on_person'] == True:
+            if player.has_thing(thing):
                 return
             thing['on_person'] = True
-            inventory_quantity = inventory_quantity + 1
+            player.add_thing(thing)
+            things.remove(thing)
             print('You pick up the ' + thing['name'] + '.')
 
 
 def available_targets(current_room):
-    global inventory_quantity
     global room_has_items
     global target
     update_things_in_room(current_room)
-    if room_has_items or inventory_quantity > 0:
+    if room_has_items or player.has_things():
         available_choices = []
         if room_has_items:
             for thing in things:
-                if (thing['location'] == current_room and thing['on_person'] == False):
+                if is_thing_in_room(thing, current_room):
                     available_choices.append(thing['name'].lower())
-        if inventory_quantity > 0:
-            for thing in things:
-                if (thing['on_person'] == True):
-                    available_choices.append(thing['name'].lower())
+        if player.has_things():
+            for thing in player.inventory:
+                available_choices.append(thing['name'].lower())
     return available_choices
 
 
@@ -506,7 +503,6 @@ def check_event(current_room, used_item):
 
 
 def do_event(event_id):
-    global inventory_quantity
     global game_choice
 
     if game_choice == '1':
@@ -546,8 +542,7 @@ def do_event(event_id):
                     'desc'] = 'The grassy clearing at the end of the road is dappled with light shining through the tall trees. A new tree in the center has low, inviting branches. Where the grass was worn to the south, you now see a brightly glowing portal! The street is at the north end of the park, a trail leads through the trees to the west, and a meadow is to the east.'
                 # updated connecting room exits - BE CAREFUL TO INCLUDE PREVIOUS EXITS
                 world[4]['exits'] = {'n': 3, 'u': 7, 's': 5}
-                delete_thing('robin')
-                # removing this since delete_thing adjusts inventory        inventory_quantity = inventory_quantity - 1
+                player.delete_thing('robin')
             else:
                 print('Nothing happened.')
         # unlock gate
@@ -568,14 +563,13 @@ def do_event(event_id):
             print(events[event_id]['first_time_text'])
             events[event_id]['done'] = True
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
-            things.append({'name': 'robin', 'prefix': 'a',
+            player.add_thing({'name': 'robin', 'prefix': 'a',
                            'description': 'Its feathers are matted down by egg goo, and the baby bird is struggling to open its tiny eyes. It would be gross if it weren\'t so darn cute.',
                            'location': 7, 'on_person': True, 'moveable': True, 'is_weapon': False})
-            inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             things.append({'name': 'egg shell', 'prefix': 'an',
                            'description': 'There\'s little to do with the broken egg shell shards.', 'location': 7,
                            'on_person': False, 'moveable': True, 'is_weapon': False})
-            delete_thing('egg')
+            player.delete_thing('egg')
         # reveal basement
         if event_id in [5]:
             print(events[event_id]['first_time_text'])
@@ -592,7 +586,7 @@ def do_event(event_id):
             things.append({'name': 'birdhouse', 'prefix': 'a',
                            'description': 'The toy house resting atop the post will surely attract small, avian creatures.',
                            'location': 1, 'on_person': False, 'moveable': False, 'is_weapon': False})
-            delete_thing('toy house')
+            player.delete_thing('toy house')
         # make flashlight
         if event_id in [11]:
             print(events[event_id]['first_time_text'])
@@ -601,7 +595,7 @@ def do_event(event_id):
             things.append({'name': 'flashlight', 'prefix': 'a',
                            'description': 'It\'s your standard issue flashlight. Looks like it could help you see in dark places, but it wouldn\'t do much elsewhere.',
                            'location': 9, 'on_person': False, 'moveable': True, 'is_weapon': False})
-            delete_thing('coin')
+            player.delete_thing('coin')
         # make functional well
         if event_id in [17]:
             print(events[event_id]['first_time_text'])
@@ -610,8 +604,8 @@ def do_event(event_id):
             things.append({'name': 'well', 'prefix': 'the',
                            'description': 'The well is still old, but now you can raise and lower the bucket.',
                            'location': 10, 'on_person': False, 'moveable': False, 'is_weapon': False})
-            delete_thing('broken well')
-            delete_thing('bucket')
+            player.delete_thing('broken well')
+            player.delete_thing('bucket')
         # make key
         if event_id in [18]:
             print(events[event_id]['first_time_text'])
@@ -624,7 +618,7 @@ def do_event(event_id):
         if event_id in [19]:
             print(events[event_id]['first_time_text'])
             events[event_id]['done'] = True
-            delete_thing('pebble')
+            player.delete_thing('pebble')
     elif game_choice == '2':
         if event_id in [0]:
             print(events[event_id]['first_time_text'])
@@ -632,22 +626,12 @@ def do_event(event_id):
         if event_id in [1]:
             print(events[event_id]['first_time_text'])
             events[event_id]['done'] = True
-            player.addHealth(50)
+            player.add_health(50)
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
-            things.append({'name': 'empty bottle', 'prefix': 'an',
+            player.add_thing({'name': 'empty bottle', 'prefix': 'an',
                            'description': 'Staring at the empty elixir bottle fills you with longing.', 'location': 1,
                            'on_person': True, 'moveable': True, 'is_weapon': False})
-            inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
-            delete_thing('elixir')
-
-
-def delete_thing(thing_name):
-    global inventory_quantity
-    for thing in things:
-        if thing['name'] == thing_name:
-            if thing['on_person'] == True:
-                inventory_quantity = inventory_quantity - 1
-            things.remove(thing)
+            player.delete_thing('elixir')
 
 
 def show_exits(current_room):
@@ -981,7 +965,6 @@ def load_game(choice):
 def initialize_engine():
     global allowed_moves
     global allowed_actions
-    global inventory_quantity
     global room_has_items
     global room_has_mobs
     global locale_visited
@@ -990,7 +973,6 @@ def initialize_engine():
                      'nw', 'northwest', 'se', 'southeast', 'sw', 'southwest']
     allowed_actions = ['l', 'look', 'x', 'examine', 'use', 'take', 'drop', 'inv', 'inventory', '?', 'help', 'quit', 'h',
                        'health']
-    inventory_quantity = 0
     room_has_items = False
     room_has_mobs = False
     locale_visited = False
@@ -1046,7 +1028,7 @@ while room != exit_room:
         drop_item(room)
         creature_attack(room)
     elif move == 'inv' or move == 'inventory':
-        show_inventory(inventory_quantity)
+        player.show_inventory()
     elif move == 'h' or move == 'health':
         player.wellness()
     elif move == 'quit':
@@ -1074,3 +1056,5 @@ if room == exit_room:
     print(outro_text)
     print('')
     input('Press ENTER to continue...')
+
+
