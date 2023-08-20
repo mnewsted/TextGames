@@ -23,8 +23,8 @@ class Player:
 
     def add_health(self, amount):
         self.hp += amount
-        if self.hp > 100:
-            self.hp = 100
+        if self.hp > self.maxHealth:
+            self.hp = self.maxHealth
 
     def take_damage(self, amount):
         self.hp -= amount
