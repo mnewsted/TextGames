@@ -1,6 +1,6 @@
 #! python3
 # TextGames
-# version 1.4.1
+# version 1.4.2
 # description: split space adventure into game_3.py module. more to be done.
 
 
@@ -680,7 +680,7 @@ def do_event(event_id, current_room):
         global launch_code
 
         # simple event: print text only, put weapons in here
-        if event_id in [0, 5, 6, 7, 10, 14, 16, 18, 19, 22, 27, 36, 37, 38, 41]:
+        if event_id in [0, 5, 6, 7, 10, 14, 16, 18, 19, 22, 27, 36, 37, 38, 41, 44]:
             print(events[event_id]['first_time_text'])
             events[event_id]['done'] = True
         # use stimpack
@@ -954,6 +954,30 @@ def do_event(event_id, current_room):
                            'on_person': True, 'movable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('medium stimpack')
+        # unclog toilet and create metal key
+        if event_id in [42]:
+            print(events[event_id]['first_time_text'])
+            events[event_id]['done'] = True
+            # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM OR USE current_room VARIABLE
+            things.append({'name': 'metal key', 'prefix': 'a', 'description': 'This small, silvery key has all the notches and grooves you expect to see in something that could unlock a door.',
+                           'location': 47, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+            # remove old toilet create new one
+            delete_thing('clogged toilet')
+            things.append({'name': 'toilet', 'prefix': 'a',
+                           'description': 'The flush mechanism still doesn\'t work, but at least it is empty.',
+                           'location': 47, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
+                           'hit_bonus': 0})
+        # unlock workroom
+        if event_id in [43]:
+            print(events[event_id]['first_time_text'])
+            events[event_id]['done'] = True
+            # new room
+            world[49]['visible'] = True
+            # updated connecting room description - BE CAREFUL TO BUILD ON PREVIOUS DESCRIPTION
+            world[48]['desc'] = 'This dingy space contains an array of maintenance tools and equipment. To the northeast is the Funneling hallway. On the west side of the room is a door to the Workroom. '
+            # updated connecting room exits - BE CAREFUL TO INCLUDE PREVIOUS EXITS
+            world[48]['exits'] = {'ne': 12, 'w': 49}
+
 
 def do_special(current_room):
     global player_hp
