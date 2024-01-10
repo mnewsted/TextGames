@@ -1,6 +1,6 @@
 #! python3
 # TextGames Space Adventure - Game 3
-# version 1.1
+# version 1.2
 # description: separating game content from engine. adding rooms and items.
 
 
@@ -343,7 +343,9 @@ things.append({'name': 'clogged toilet', 'prefix': 'a',
 things.append({'name': 'astroplunger', 'prefix': 'an', 'description': 'Some technology can\'t be improved upon. '
                'Despite its fancy name, the wooden handle and dark rubber bulb are fashioned in the classic design.',
                'location': 49, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
-
+things.append({'name': 'workbench', 'prefix': 'the', 'description': 'With the state-of-the-art quantum-precision workbench, '
+                                                                    'there\'s nothing you can\'t build! The urge to create is almost overwhelming.',
+               'location': 49, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
 
 
 
@@ -506,6 +508,16 @@ events.insert(40, {'id': 40, 'done': False, 'room': 999, 'item_name': 'medium st
 events.insert(41, {'id': 41, 'done': False, 'room': 47, 'item_name': 'clogged toilet',
                   'first_time_text': 'It doesn\'t flush, and with all that clothing stuck inside, it seems like a bad idea to use it as designed.',
                   'already_done_text': 'It doesn\'t flush, and with all that clothing stuck inside, it seems like a bad idea to use it as designed.'})
+events.insert(42, {'id': 42, 'done': False, 'room': 47, 'item_name': 'astroplunger',
+                   'first_time_text': 'You apply your best plunging technique to the clogged toilet. After a vigorous effort, the you extract a drenched uniform. '
+                                      'The waste purification chemicals are causing it to quickly dissolve, but a key on a ring that was attached to the uniform belt remains.',
+                   'already_done_text': 'There isn\'t anything to plunge here.'})
+events.insert(43, {'id': 43, 'done': False, 'room': 48, 'item_name': 'metal key',
+                  'first_time_text': 'With a little effort, you are able to unlock the door to the Workroom.',
+                  'already_done_text': 'The workroom door is already unlocked.'})
+events.insert(44, {'id': 44, 'done': False, 'room': 49, 'item_name': 'workbench',
+                  'first_time_text': 'The workbench by itself doesn\'t do much. Try experimenting with other items.',
+                   'already_done_text': 'Did you even read the manual? The workbench by itself doesn\'t do much. Try using with other items.'})
 
 creatures.append({'id': 0, 'name': 'Prison guard',
                   'description': 'The guard is 6 feet tall with a sturdy build, greenish skin, and eyes that are cloudy and dark. Its posture is full of anger. No weapons are visible, but its knuckles look pointy.',
