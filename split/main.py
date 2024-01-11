@@ -1,6 +1,6 @@
 #! python3
 # TextGames
-# version 1.4.2
+# version 1.4.3
 # description: split space adventure into game_3.py module. more to be done.
 
 
@@ -192,7 +192,7 @@ def take_item(current_room):
                 available_choices.append(thing['name'].lower())
         for thing in things:
             if thing['name'].lower() == target.lower():
-                if thing['movable'] == True:
+                if thing['moveable'] == True:
                     thing['on_person'] = True
                     inventory_quantity = inventory_quantity + 1
                     # old print('You pick up ' + thing['prefix'] + ' ' + thing['name'] + '.')
@@ -218,7 +218,7 @@ def take_item(current_room):
                 return
         for thing in things:
             if thing['name'].lower() == choice:
-                if thing['movable'] == True:
+                if thing['moveable'] == True:
                     thing['on_person'] = True
                     inventory_quantity = inventory_quantity + 1
                     print('You pick up the ' + thing['name'] + '.')
@@ -601,11 +601,11 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'robin', 'prefix': 'a',
                            'description': 'Its feathers are matted down by egg goo, and the baby bird is struggling to open its tiny eyes. It would be gross if it weren\'t so darn cute.',
-                           'location': 7, 'on_person': True, 'movable': True, 'is_weapon': False})
+                           'location': 7, 'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             things.append({'name': 'egg shell', 'prefix': 'an',
                            'description': 'There\'s little to do with the broken egg shell shards.', 'location': 7,
-                           'on_person': False, 'movable': True, 'is_weapon': False})
+                           'on_person': False, 'moveable': True, 'is_weapon': False})
             delete_thing('egg')
         # reveal basement
         if event_id in [5]:
@@ -614,7 +614,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'toy house', 'prefix': 'a',
                            'description': 'This miniature colonial appears to be worn from play. You can imagine dolls going in and out of the doors and windows.',
-                           'location': 6, 'on_person': False, 'movable': True, 'is_weapon': False})
+                           'location': 6, 'on_person': False, 'moveable': True, 'is_weapon': False})
         # make birdhouse
         if event_id in [6]:
             print(events[event_id]['first_time_text'])
@@ -622,7 +622,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'birdhouse', 'prefix': 'a',
                            'description': 'The toy house resting atop the post will surely attract small, avian creatures.',
-                           'location': 1, 'on_person': False, 'movable': False, 'is_weapon': False})
+                           'location': 1, 'on_person': False, 'moveable': False, 'is_weapon': False})
             delete_thing('toy house')
         # make flashlight
         if event_id in [11]:
@@ -631,7 +631,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'flashlight', 'prefix': 'a',
                            'description': 'It\'s your standard issue flashlight. Looks like it could help you see in dark places, but it wouldn\'t do much elsewhere.',
-                           'location': 9, 'on_person': False, 'movable': True, 'is_weapon': False})
+                           'location': 9, 'on_person': False, 'moveable': True, 'is_weapon': False})
             delete_thing('coin')
         # make functional well
         if event_id in [17]:
@@ -640,7 +640,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'well', 'prefix': 'the',
                            'description': 'The well is still old, but now you can raise and lower the bucket.',
-                           'location': 10, 'on_person': False, 'movable': False, 'is_weapon': False})
+                           'location': 10, 'on_person': False, 'moveable': False, 'is_weapon': False})
             delete_thing('broken well')
             delete_thing('bucket')
         # make key
@@ -650,7 +650,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'key', 'prefix': 'a',
                            'description': 'The brass key is partially covered in moss. It feels heavy.', 'location': 10,
-                           'on_person': False, 'movable': True, 'is_weapon': False})
+                           'on_person': False, 'moveable': True, 'is_weapon': False})
         # drop pebble
         if event_id in [19]:
             print(events[event_id]['first_time_text'])
@@ -671,7 +671,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'empty bottle', 'prefix': 'an',
                            'description': 'Staring at the empty elixir bottle fills you with longing.', 'location': 1,
-                           'on_person': True, 'movable': True, 'is_weapon': False})
+                           'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('elixir')
 
@@ -680,7 +680,7 @@ def do_event(event_id, current_room):
         global launch_code
 
         # simple event: print text only, put weapons in here
-        if event_id in [0, 5, 6, 7, 10, 14, 16, 18, 19, 22, 27, 36, 37, 38, 41, 44]:
+        if event_id in [0, 5, 6, 7, 10, 14, 16, 18, 19, 22, 27, 36, 37, 38, 41, 44, 45, 46]:
             print(events[event_id]['first_time_text'])
             events[event_id]['done'] = True
         # use stimpack
@@ -692,7 +692,7 @@ def do_event(event_id, current_room):
                 player_hp = 100
             things.append({'name': 'empty stimpack', 'prefix': 'an',
                            'description': 'The hollow tube of the used stimpack is of little use now.', 'location': current_room,
-                           'on_person': True, 'movable': True, 'is_weapon': False})
+                           'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('stimpack')
         # unlock detention elevator
@@ -714,7 +714,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM OR USE current_room VARIABLE
             things.append({'name': 'keycard', 'prefix': 'a',
                            'description': 'This sleek card reads, "Detention Elevator." Emblazoned under the text is an image of a box with an arrow inside it.',
-                           'location': current_room, 'on_person': False, 'movable': True, 'is_weapon': False})
+                           'location': current_room, 'on_person': False, 'moveable': True, 'is_weapon': False})
         # using breathing mask
         if event_id in [4]:
             print(events[event_id]['first_time_text'])
@@ -734,12 +734,12 @@ def do_event(event_id, current_room):
             delete_thing('corpse')
             things.append({'name': 'empty fuel cell', 'prefix': 'an',
                            'description': 'The spent fuel cell has nothing inside it.', 'location': 10,
-                           'on_person': True, 'movable': True, 'is_weapon': False})
+                           'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'quarters keycard', 'prefix': 'a',
                            'description': 'After wiping it clean, you see this keycard has the words \'Crew Quarters\' printed on it.',
-                           'location': 10, 'on_person': False, 'movable': True, 'is_weapon': False})
+                           'location': 10, 'on_person': False, 'moveable': True, 'is_weapon': False})
         # unlock quarters elevator
         if event_id in [9]:
             print(events[event_id]['first_time_text'])
@@ -771,21 +771,21 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM OR USE current_room VARIABLE
             things.append({'name': 'mess keycard', 'prefix': 'a',
                            'description': 'This worn card reads, "Mess & Medical Elevator." Emblazoned under the text is an image of a box with an arrow inside it.',
-                           'location': current_room, 'on_person': False, 'movable': True, 'is_weapon': False})
+                           'location': current_room, 'on_person': False, 'moveable': True, 'is_weapon': False})
         if event_id in [13]:
             print(events[event_id]['first_time_text'])
             events[event_id]['done'] = True
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM
             things.append({'name': 'soldier eye', 'prefix': 'a',
                            'description': 'You don\'t feel great about how you got it, but the eyeball is pretty cool.',
-                           'location': 39, 'on_person': True, 'movable': True, 'is_weapon': False})
+                           'location': 39, 'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             # replace existing soldier with a modified version
             delete_thing('fallen soldier')
             things.append({'name': 'fallen soldier', 'prefix': 'a',
                             'description': 'This dead crewmate is bent backwards, leaning on the countertop. They have the insignia and fatigues of a tactical combat specialist. '
                             'Unlike the other bodies you encountered, this one seems frozen in shock, face up with one eye and mouth wide open.',
-                            'location': 39, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+                            'location': 39, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
         # use large stimpack
         if event_id in [15]:
             print(events[event_id]['first_time_text'])
@@ -795,7 +795,7 @@ def do_event(event_id, current_room):
                 player_hp = 100
             things.append({'name': 'empty large stimpack', 'prefix': 'an',
                            'description': 'There\'s not much to do with the large stimpack now that it is drained.', 'location': current_room,
-                           'on_person': True, 'movable': True, 'is_weapon': False})
+                           'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('large stimpack')
         # unlock armory elevator
@@ -830,7 +830,7 @@ def do_event(event_id, current_room):
             # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM OR USE current_room VARIABLE
             things.append({'name': 'bridge keycard', 'prefix': 'a',
                            'description': 'This dark gray card has no words on it, but when held at a certain angle, a stylized bridge materialzes. Below the bridge image you can see a box with an arrow inside it.',
-                           'location': current_room, 'on_person': False, 'movable': True, 'is_weapon': False})
+                           'location': current_room, 'on_person': False, 'moveable': True, 'is_weapon': False})
         # use wound salve
         if event_id in [23]:
             print(events[event_id]['first_time_text'])
@@ -840,7 +840,7 @@ def do_event(event_id, current_room):
                 player_hp = 100
             things.append({'name': 'used wound salve', 'prefix': 'a',
                            'description': 'The wound salve jar is empty. What a shame.', 'location': current_room,
-                           'on_person': True, 'movable': True, 'is_weapon': False})
+                           'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('wound salve')
         # use hot sauce on hulking guard
@@ -883,7 +883,7 @@ def do_event(event_id, current_room):
             if necessary_parts == 3:
                 things.append({'name': 'override lever', 'prefix': 'the',
                                'description': 'This majestic implement is full of potential. A genuine lever of power.',
-                               'location': current_room, 'on_person': True, 'movable': True, 'is_weapon': False})
+                               'location': current_room, 'on_person': False, 'moveable': True, 'is_weapon': False})
                 inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
                 delete_thing('allen claw')
                 delete_thing('smooth bar')
@@ -924,7 +924,7 @@ def do_event(event_id, current_room):
             things.append({'name': 'lockdown console', 'prefix': 'the',
                        'description': 'The lockdown console has a small screen that reads: \n\t"NO LOCKDOWN - Offline systems: none"'
                                       '\nThere is an empty lever socket just below the screen.',
-                       'location': 45, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+                       'location': 45, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
         # use escape pod launch controls
         if event_id in [34]:
             print(events[event_id]['first_time_text'])
@@ -940,7 +940,7 @@ def do_event(event_id, current_room):
             delete_thing('phaser booster')
             things.append({'name': 'phaser', 'prefix': 'a',
                        'description': 'The V-8 phaser pistol is a reliable mid- to close-range weapon, especially now that it is BOOSTED.',
-                       'location': 999, 'on_person': True, 'movable': True, 'is_weapon': True, 'base_damage': 25, 'damage': 30, 'hit_bonus': 45})
+                       'location': 999, 'on_person': True, 'moveable': True, 'is_weapon': True, 'base_damage': 25, 'damage': 30, 'hit_bonus': 45})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
         # use stimpack
         if event_id in [40]:
@@ -951,7 +951,7 @@ def do_event(event_id, current_room):
                 player_hp = 100
             things.append({'name': 'empty medium stimpack', 'prefix': 'an',
                            'description': 'The medium stimpack served its purpose.', 'location': current_room,
-                           'on_person': True, 'movable': True, 'is_weapon': False})
+                           'on_person': True, 'moveable': True, 'is_weapon': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('medium stimpack')
         # unclog toilet and create metal key
@@ -997,7 +997,7 @@ def do_special(current_room):
         if current_room == 43:
             if not creatures[3]['is_dead']:
                 if creatures[3]['is_hostile'] == False and special_done[0]['done'] == False:
-                    print('\nThe ship\'s captain is standing in the middle of the room. They speak to you in a haughty tone:'
+                    print('The ship\'s captain is standing in the middle of the room. They speak to you in a haughty tone:'
                           '\n\t"So you survived. I had to bring the virus on board to see if it was effective. It was, even against a crew that fought back.'
                           '\n\tWe will learn much from our discovery. No one needs to know about our role in this."\n')
                     special_done[0]['done'] = True
@@ -1246,42 +1246,42 @@ def load_game(choice):
 
         things.append({'name': 'note', 'prefix': 'a',
                        'description': 'Something is badly scrawled on this yellowing paper, but with effort, you can read it. \n\'If you don\'t like it here, exit through the portal.\nObviously, portals aren\'t naturally occurring.\nYou\'ll have to summon one.\nI think there\'s a clue in the studio.\'',
-                       'location': 0, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 0, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'pebble', 'prefix': 'a',
                        'description': 'This tiny rock has been smoothed by eons of natural erosion. How could something so small be so old?',
-                       'location': 1, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 1, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'ball', 'prefix': 'a', 'description': 'It\'s a dark pink playground ball.', 'location': 4,
-                        'on_person': False, 'movable': True, 'is_weapon': False})
+                        'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'Mona Lisa', 'prefix': 'the',
                        'description': 'This painting is a masterpiece of the Italian Renaissance. There is something to that smile.',
-                       'location': 8, 'on_person': False, 'movable': False, 'is_weapon': False})
+                       'location': 8, 'on_person': False, 'moveable': False, 'is_weapon': False})
         things.append({'name': 'tricycle', 'prefix': 'a',
                        'description': 'The light blue aluminum tricycle appears to be in working order, though that plastic seat doesn\'t seem comfortable.',
-                       'location': 3, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 3, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'tree kit', 'prefix': 'a',
                        'description': 'The tree kit box claims: \'Makes a real life tree in seconds! No digging required. For best results, use in an open area.\'',
-                       'location': 2, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 2, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'egg', 'prefix': 'an',
                        'description': 'The small, blue egg feels weighty, like there\'s something inside it.',
-                       'location': 7, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 7, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'post', 'prefix': 'a',
                        'description': 'It\'s four feet tall, stuck in the ground, and has a little square table surface at the top.',
-                       'location': 1, 'on_person': False, 'movable': False, 'is_weapon': False})
+                       'location': 1, 'on_person': False, 'moveable': False, 'is_weapon': False})
         things.append({'name': 'machine', 'prefix': 'a',
                        'description': 'You try to make sense of this large, well-maintained, metallic box. It is the size of a refrigerator but without any visible doors. It has two holes: a small slot near the top and a large square hole at the bottom.',
-                       'location': 9, 'on_person': False, 'movable': False, 'is_weapon': False})
+                       'location': 9, 'on_person': False, 'moveable': False, 'is_weapon': False})
         things.append({'name': 'broken well', 'prefix': 'a',
                        'description': 'It looks like this old well isn\'t completely broken. The crank turns, adjusting the height of the rope, but nothing is attached to it. At the bottom of the well, something reflects light back up to you.',
-                       'location': 10, 'on_person': False, 'movable': False, 'is_weapon': False})
+                       'location': 10, 'on_person': False, 'moveable': False, 'is_weapon': False})
         things.append({'name': 'bucket', 'prefix': 'a',
                        'description': 'This yellow bucket has a wide handle at the top, making it easy to hold.',
-                       'location': 2, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 2, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'coin', 'prefix': 'a',
                        'description': 'This rusty coin has indecipherable symbols on one side and a rectangular shape on the other. It doesn\'t appear to be worth much.',
-                       'location': 13, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 13, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'gate', 'prefix': 'a',
                        'description': 'This is a serious gate. The wrought-iron frame is elegant yet ominous. You see a bulky, brass lock mechanism that contains a happy keyhole.',
-                       'location': 12, 'on_person': False, 'movable': False, 'is_weapon': False})
+                       'location': 12, 'on_person': False, 'moveable': False, 'is_weapon': False})
 
         # note: if room == 999 then event can be done in any room
         # possible issue: if item can be used in specific room & 999, does room# need to appear before 999 event? why?
@@ -1367,12 +1367,12 @@ def load_game(choice):
         player_hp = 100
         things.append({'name': 'hammer', 'prefix': 'a',
                        'description': 'It\'s a classic ball-peen hammer. Could do some real damage.', 'location': 0,
-                       'on_person': False, 'movable': True, 'is_weapon': True, 'base_damage': 10, 'damage': 30, 'hit_bonus': 20})
+                       'on_person': False, 'moveable': True, 'is_weapon': True, 'base_damage': 10, 'damage': 30, 'hit_bonus': 20})
         things.append({'name': 'cog', 'prefix': 'a', 'description': 'This rusty machine cog is worn down from years of use.',
-                        'location': 0, 'on_person': False, 'movable': True, 'is_weapon': False})
+                        'location': 0, 'on_person': False, 'moveable': True, 'is_weapon': False})
         things.append({'name': 'elixir', 'prefix': 'an',
                        'description': 'A small glass bottle contains a bright green liquid. The label reads: "Drink for fast-acting relief."',
-                       'location': 1, 'on_person': False, 'movable': True, 'is_weapon': False})
+                       'location': 1, 'on_person': False, 'moveable': True, 'is_weapon': False})
         events.insert(0, {'id': 0, 'done': False, 'room': 999, 'item_name': 'hammer',
                           'first_time_text': 'You swing the hammer.', 'already_done_text': 'You swing the hammer.'})
         events.insert(1, {'id': 1, 'done': False, 'room': 1, 'item_name': 'elixir',
