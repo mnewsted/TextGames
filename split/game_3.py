@@ -1,6 +1,6 @@
 #! python3
 # TextGames Space Adventure - Game 3
-# version 1.2
+# version 1.3
 # description: separating game content from engine. adding rooms and items.
 
 
@@ -64,8 +64,9 @@ world.insert(11, {'visible': True, 'name': 'Main Deck Elevator Bay 2', 'prefix':
                   'desc': 'The elevator goes down to the Armory. The control panel requires a retina scan to activate. To the north is a wide, branching hallway.',
                   'exits': {'n': 10}})
 world.insert(12, {'visible': True, 'name': 'Funneling hallway', 'prefix': 'in a', 'name2': '',
-                  'desc': 'The hallway narrows as it leads from east to west. At the east end is a wide, branching hallway. To the west is an elevator to the Crew Quarters.',
-                  'exits': {'e': 10, 'w': 13}})
+                  'desc': 'The hallway narrows as it leads from east to west. At the east end is a wide, branching hallway. To the west is an elevator to the Crew Quarters. '
+                          'Hardly visible in the southwest corner of the room is a dim passage to the Custodial Supplies room.',
+                  'exits': {'e': 10, 'w': 13, 'sw': 48}})
 world.insert(13, {'visible': True, 'name': 'Main Deck Elevator Bay 1', 'prefix': 'at', 'name2': ' (to Quarters)',
                   'desc': 'The elevator goes down to Crew Quarters, but it requires a keycard to activate it. To the east is a widening hallway.',
                   'exits': {'e': 12}})
@@ -122,8 +123,9 @@ world.insert(30, {'visible': True, 'name': 'Dormitory', 'prefix': 'in the', 'nam
                   'desc': 'Rows and rows of empty sleeping pods fill the room. To the east are what look like grooming facilities. The lounge is accessible to the west.',
                   'exits': {'w': 29, 'e': 31}})
 world.insert(31, {'visible': True, 'name': 'Crew Facilities', 'prefix': 'in the', 'name2': '',
-                  'desc': 'Toilets, showers, and hygiene facilities are arranged to maximize privacy. There are a few odd items left in a ransacked supply closet. The dormitory is to the west.',
-                  'exits': {'w': 30}})
+                  'desc': 'Showers, steampods, and hygiene facilities are arranged to maximize privacy. There are a few odd items left in a ransacked supply closet. '
+                          'Rooms with toilets are to the north and south. The dormitory is to the west.',
+                  'exits': {'n': 46, 's': 47, 'w': 30}})
 world.insert(32, {'visible': True, 'name': 'Observation Deck', 'prefix': 'in the', 'name2': '',
                   'desc': 'A floor-to-ceiling window fills the western wall, giving a breathtaking view of the stars before the ship. Tables and seating are positioned to provide a relaxing sight. '
                           'Elevator bays are on each end of the large window. An elevator to the bridge is to the north, and an elevator to the mess hall & medical services is to the south. To the east is the lounge area.',
@@ -169,126 +171,127 @@ world.insert(44, {'visible': False, 'name': 'Bridge', 'prefix': 'on the', 'name2
 world.insert(45, {'visible': True, 'name': 'Systems Control room', 'prefix': 'in the', 'name2': '',
                   'desc': 'Data from the ship\'s environment control, propulsion, and weapons systems are a few of things displayed on huge screens in this room. The only way out is west to the security desk.',
                   'exits': {'w': 43}})
-world.insert( 46, {'visible': True, 'name': 'Toilet Bank 1', 'prefix': 'in',
+world.insert( 46, {'visible': True, 'name': 'Toilet Bank 1', 'prefix': 'in', 'name2': '',
                    'desc': 'An impressive number of toilets and bidets are discretely concealed within ceiling-to-floor privacy screens. The Crew Facilities are accessible to the south.',
                    'exits': {'s': 31}})
-world.insert( 47, {'visible': True, 'name': 'Toilet Bank 2', 'prefix': 'in',
+world.insert( 47, {'visible': True, 'name': 'Toilet Bank 2', 'prefix': 'in', 'name2': '',
                    'desc': 'An impressive number of toilets and bidets are discretely concealed within ceiling-to-floor privacy screens. The Crew Facilities are accessible to the north.',
                    'exits': {'n': 31}})
-world.insert( 48, {'visible': True, 'name': 'Custodial Supplies room ', 'prefix': 'in the',
+world.insert( 48, {'visible': True, 'name': 'Custodial Supplies room', 'prefix': 'in the', 'name2': '',
                    'desc': 'This dingy space contains an array of maintenance tools and equipment. To the northeast is the Funneling hallway. On the west side of the room is a door marked Workroom. '
                            'It is locked, but the door knob has an old-fashioned keyhole in it.', 'exits': {'ne': 12}})
-world.insert( 49, {'visible': False, 'name': 'Workroom', 'prefix': 'in the', 'desc': 'The familiar workroom has decent lighting and ample space to fix or build all kinds of things. '
+world.insert( 49, {'visible': False, 'name': 'Workroom', 'prefix': 'in the', 'name2': '',
+                   'desc': 'The familiar workroom has decent lighting and ample space to fix or build all kinds of things. '
                            'The only exit is back east to the Custodial Supplies room.', 'exits': {'e': 48}})
 
 
 
 things.append({'name': 'food tray', 'prefix': 'a',
                'description': 'The empty food tray has some heft to it. The metal edge looks mean.',
-               'location': 0, 'on_person': False, 'movable': True, 'is_weapon': True, 'base_damage': 10,
+               'location': 0, 'on_person': False, 'moveable': True, 'is_weapon': True, 'base_damage': 10,
                'damage': 10, 'hit_bonus': 25})
 things.append({'name': 'stimpack', 'prefix': 'a',
                'description': 'A small vial of clear liquid has a tiny needle on one end and a red heart decal on the side.',
-               'location': 3, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 3, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'breathing mask', 'prefix': 'a',
                'description': 'The compact device looks like it would fit nicely on your face if you pick it up or use it.',
-               'location': 3, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 3, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'digipad1', 'prefix': 'a',
                'description': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
                               '\n\tAfter we were attacked, I dragged you in here and set the door to lock from the inside.'
                               '\n\tYou can get out but be careful: most of the crew is dead. Those that survived are, well, dangerous.'
                               '\n\tUse whatever you can to survive. You gotta get off this ship. -B',
-               'location': 0, 'on_person': False, 'movable': True, 'is_weapon': False})
+               'location': 0, 'on_person': False, 'moveable': True, 'is_weapon': False})
 things.append({'name': 'digipad2', 'prefix': 'a',
                'description': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
                               '\n\tSome kind of virus swept through the ship. It killed most of the crew. Others were corrupted.'
                               '\n\tThey do not need oxygen. They are diverting the ship\'s oxygen for some other purpose.'
                               '\n\tI preserved the atmosphere settings on the Detention Level, but other places on the ship are probably bad. -B',
-               'location': 2, 'on_person': False, 'movable': True, 'is_weapon': False})
+               'location': 2, 'on_person': False, 'moveable': True, 'is_weapon': False})
 things.append({'name': 'wrench', 'prefix': 'a',
                'description': 'The heavy tool is rusted, but it could do some real damage.',
-               'location': 17, 'on_person': False, 'movable': True, 'is_weapon': True, 'base_damage': 15,
+               'location': 17, 'on_person': False, 'moveable': True, 'is_weapon': True, 'base_damage': 15,
                'damage': 15, 'hit_bonus': 30})
 things.append({'name': 'fuel cell', 'prefix': 'a',
                'description': 'This metallic cylinder emits a strange bluish glow from a slit on each end. A warning label reads: DANGER - Will burn through organic matter.',
-               'location': 16, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 16, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'corpse', 'prefix': 'a',
                'description': 'The body of one of your crewmates lies on the floor, contorted in an unnatural pose. Every inch of their body is covered in a wet, dark gray-green substance. '
                               'It is translucent and looks hard, almost stone-like.',
-               'location': 10, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 10, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'digipad5', 'prefix': 'a',
                'description': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
                               '\n\tThe virus doesn\'t act the same on everybody. It doesn\'t make sense.'
-                              '\n\tI saw Jackson from Combat Services collapse. Once she did, a jade crystal coating formed over her skin.'
+                              '\n\tI saw Jackson from Combat Services collapse. When she did, a jade crystal coating formed over her skin.'
                               '\n\tOthers went into zombie mode and started attacking. -A',
-               'location': 8, 'on_person': False, 'movable': True, 'is_weapon': False})
+               'location': 8, 'on_person': False, 'moveable': True, 'is_weapon': False})
 things.append({'name': 'allen claw', 'prefix': 'an',
                'description': 'This shiny, angular piece of metal appears to have been fashioned for a specific purpose.',
-               'location': 41, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 41, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'smooth bar', 'prefix': 'a',
                'description': 'This rod is painted orange. It has fittings on both ends.',
-               'location': 31, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 31, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append(
     {'name': 'gummy grip', 'prefix': 'a', 'description': 'The short pipe has a cushioned yet tackified surface.',
-     'location': 27, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+     'location': 27, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
 things.append({'name': 'dented tricorder', 'prefix': 'a',
                'description': 'This banged-up scanner must be good for something. It still beeps!',
-               'location': 32, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 32, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'lockbox', 'prefix': 'a',
                'description': 'There are cryptic symbols on this oblong box. The lid is fastened tight, but a square keyhole looks promising.',
-               'location': 18, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 18, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'scalpel', 'prefix': 'a',
-               'description': 'The surgical blade is short but exceedingly sharp. It would be very effective at a targeted procedure, but it would also do a lot of damage if it connected.',
-               'location': 37, 'on_person': False, 'movable': True, 'is_weapon': True, 'base_damage': 10,
+               'description': 'The surgical blade is short but exceedingly sharp. It would be very effective at a targeted procedure, but it could also do some damage in a fight if it connected.',
+               'location': 37, 'on_person': False, 'moveable': True, 'is_weapon': True, 'base_damage': 10,
                'damage': 25,
                'hit_bonus': 15})
 things.append({'name': 'fallen soldier', 'prefix': 'a',
                'description': 'This dead crewmate is bent backwards, leaning on the countertop. They have the insignia and fatigues of a tactical combat specialist. '
                               'Unlike the other bodies you encountered, this one seems frozen in shock, face up with eyes and mouth wide open.',
-               'location': 39, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 39, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'large stimpack', 'prefix': 'a',
                'description': 'This device has 3 compact barrels of clear liquid that funnel into a small needle. You are comforted by the cheerful red heart logo on the top, '
                               'and the encouraging label that reads, "Massive vitality boost."',
-               'location': 36, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 36, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'digipad4', 'prefix': 'a',
                'description': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
                               '\n\tThey say you can see it in the eyes when they\'re infected. They get all hazy.'
                               '\n\tIf that\'s true, then it\'s happening to me. I can\'t see my own reflection any more. -L',
-               'location': 38, 'on_person': False, 'movable': True, 'is_weapon': False})
+               'location': 38, 'on_person': False, 'moveable': True, 'is_weapon': False})
 things.append({'name': 'hot sauce', 'prefix': 'a',
                'description': 'This small bottle has a picture of a burning crescent-shaped pepper. "One drop\'ll do ya!"',
-               'location': 40, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 40, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append(
     {'name': 'mayonnaise', 'prefix': 'a', 'description': 'The large jar of eggy, white, goop is still half-full.',
-     'location': 40, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+     'location': 40, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
 things.append({'name': 'pear powder', 'prefix': 'a',
                'description': 'A hand-written label on this see-through bag describes the sparkly, yellow granules inside the flavor pouch.',
-               'location': 40, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 40, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'digipad3', 'prefix': 'a',
                'description': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
                               '\n\tTraining today in Systems Control. Learned how to activate locked down systems.'
                               '\n\tThey got some real Rube Goldberg protocols. The lever that works the controls is'
                               '\n\tassembled from three parts in storage on the ship. How is that secure? -M',
-               'location': 29, 'on_person': False, 'movable': True, 'is_weapon': False})
+               'location': 29, 'on_person': False, 'moveable': True, 'is_weapon': False})
 things.append({'name': 'phaser', 'prefix': 'a',
                'description': 'The V-8 phaser pistol is a reliable mid- to close-range weapon.',
-               'location': 26, 'on_person': False, 'movable': True, 'is_weapon': True, 'base_damage': 20,
+               'location': 26, 'on_person': False, 'moveable': True, 'is_weapon': True, 'base_damage': 20,
                'damage': 25, 'hit_bonus': 40})
 things.append({'name': 'wound salve', 'prefix': 'a',
                'description': 'The label on the opaque brown jar reads, "Apply liberally to cuts, welts, and lacerations." Inside is a substance that looks like pink jelly.',
-               'location': 27, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 27, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'digipad8', 'prefix': 'a',
                # update this text
@@ -296,56 +299,68 @@ things.append({'name': 'digipad8', 'prefix': 'a',
                               '\n\tThose infected, zombies, whatever--they do not stop.'
                               '\n\tMe and Barb held off 6 of them in the mess hall. Don\'t know why but food seemed to make them weak.'
                               '\n\tOr maybe it just distracted them. Hope somebody sees this. -X',
-               'location': 24, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 24, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'code generator', 'prefix': 'a',
                'description': 'Nestled between navigation consoles is a device labeled "Escape Pod Launch Code Generator." It looks like an old-timey vending machine. There\'s a shiny red button and a digital display.',
-               'location': 44, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 44, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'lockdown console', 'prefix': 'the',
                'description': 'The lockdown console has a small screen that reads: \n\t"LOCKDOWN ENGAGED - Offline systems: Hangar elevator, Deepspace Communications, Escape pods"'
                               '\nThere does not appear to be any way to interact with the console, but there is an empty lever socket just below the screen.',
-               'location': 45, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 45, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'launch controls', 'prefix': 'the',
                'description': 'The launch controls look like a small terminal. There\'s a screen and a keyboard.',
-               'location': 21, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 21, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'launch console', 'prefix': 'the',
                'description': 'The launch console looks like a small terminal. There\'s a screen and a keyboard.',
-               'location': 22, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 22, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'dead crewmate', 'prefix': 'a',
                'description': 'You recognize Petty Officer Smith from your time at the academy. He was always in motion. Now his body lies still. It looks like he suffered several blaster wounds.',
-               'location': 32, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 32, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'dead engineer', 'prefix': 'a',
                'description': 'It\'s hard to look at the engineer. Her arm is bending the wrong way, and her head was hit hard by something heavy. The damage is so extensive you can\'t even recognize her.',
-               'location': 15, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 15, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'retina scanner', 'prefix': 'a',
                'description': 'The scanner is built-into a panel next to the elevator door. '
                               'It sits at about eye-level and sheds a dull red glow.',
-               'location': 11, 'on_person': False, 'movable': False, 'is_weapon': False, 'damage': 0,
+               'location': 11, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'phaser booster', 'prefix': 'a',
                'description': 'The booster is a shiny gray widget. In small print it reads, '
                               '"Turns your V-8 into a V-9!"',
-               'location': 6, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 7, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'medium stimpack', 'prefix': 'a',
                'description': 'The double vials have red hearts etched into their sides. There is only one needle, thankfully.',
-               'location': 30, 'on_person': False, 'movable': True, 'is_weapon': False, 'damage': 0,
+               'location': 30, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0,
                'hit_bonus': 0})
 things.append({'name': 'clogged toilet', 'prefix': 'a',
-               'description': 'The flush mechanism is not responsive. The bowl is stuffed with what looks like a very wet uniform.',
+               'description': 'The flush mechanism is not responsive. The bowl is stuffed with what looks like a very wet dark blue cloth.',
                'location': 47, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
 things.append({'name': 'astroplunger', 'prefix': 'an', 'description': 'Some technology can\'t be improved upon. '
                'Despite its fancy name, the wooden handle and dark rubber bulb are fashioned in the classic design.',
-               'location': 49, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
-things.append({'name': 'workbench', 'prefix': 'the', 'description': 'With the state-of-the-art quantum-precision workbench, '
+               'location': 48, 'on_person': False, 'moveable': True, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+things.append({'name': 'workbench', 'prefix': 'the', 'description': 'With this state-of-the-art quantum-precision workbench, '
                                                                     'there\'s nothing you can\'t build! The urge to create is almost overwhelming.',
                'location': 49, 'on_person': False, 'moveable': False, 'is_weapon': False, 'damage': 0, 'hit_bonus': 0})
+things.append({'name': 'digipad9', 'prefix': 'a',
+               'description': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
+                              '\n\tThey\'re hunting the custodial staff. I guess it\'s because we have access to so much of the ship.'
+                              '\n\tSome of the team is hiding their uniforms. I guess the dark blue color gives us away. -B',
+               'location': 6, 'on_person': False, 'moveable': True, 'is_weapon': False})
+things.append({'name': 'workbench manual', 'prefix': 'a',
+               'description': 'You scan the manual for relevant information.'
+                              '\n\t...Holding high-heat materials requires gloves reinforced with non-conductive fibers...'
+                              '\n\t...A workbench is only as effective as it is clean. Buy our patented Bleakwipes to keep your workspace factory-pure...'
+                              '\n\t...Most levers can be constructed with a bar, a grip for holding, and some kind of tip that will connect to...'
+                              '\n\t...Fuel cell containers are not worth modifying. StarClunk makes the best...',
+               'location': 12, 'on_person': False, 'moveable': True, 'is_weapon': False})
 
 
 
@@ -382,7 +397,7 @@ events.insert(7, {'id': 7, 'done': False, 'room': 999, 'item_name': 'wrench',
                   'first_time_text': 'You heave the wrench in a fearsome arc.',
                   'already_done_text': 'You heave the wrench in a fearsome arc.'})
 events.insert(8, {'id': 8, 'done': False, 'room': 10, 'item_name': 'fuel cell',
-                  'first_time_text': 'You pour the fuel cell onto the petrified corpse. The fuel melts through the green substance, producing a satisfying sizzle. It also melts through the clothes and flesh. The stench is vile. '
+                  'first_time_text': 'You pour the fuel cell onto the petrified corpse. The fuel melts through the green substance, producing a steamy sizzle. It also melts through the clothes and flesh. The stench is vile. '
                                      'After a few seconds of that horrific chemical reaction, all that remains in the puddle are a few metal fillings, a useless belt buckle, and a keycard.',
                   'already_done_text': 'The fuel cell is used up.'})
 events.insert(9, {'id': 9, 'done': False, 'room': 13, 'item_name': 'quarters keycard',
@@ -465,13 +480,13 @@ events.insert(27, {'id': 27, 'done': False, 'room': 999, 'item_name': 'digipad8'
                                         '\n\tMe and Barb held off 6 of them in the mess hall. Don\'t know why but food seemed to make them weak.'
                                         '\n\tOr maybe it just distracted them. Hope somebody sees this. -X'})
 events.insert(28, {'id': 28, 'done': False, 'room': 49, 'item_name': 'allen claw',
-                   'first_time_text': 'When you lay the items on the workbench, you see what to do. The allen claw, smooth bar, and gummy grip fit together with a satisfying snap. '
+                   'first_time_text': 'When you lay your items on the workbench, you see what to do. The allen claw, smooth bar, and gummy grip fit together with a satisfying snap. '
                    'You\'ve made the override lever!', 'already_done_text': 'Nothing happens.'})
 events.insert(29, {'id': 29, 'done': False, 'room': 49, 'item_name': 'smooth bar',
-                   'first_time_text': 'When you lay the items on the workbench, you see what to do. The allen claw, smooth bar, and gummy grip fit together with a satisfying snap. '
+                   'first_time_text': 'When you lay your items on the workbench, you see what to do. The allen claw, smooth bar, and gummy grip fit together with a satisfying snap. '
                                       'You\'ve made the override lever!', 'already_done_text': 'Nothing happens.'})
 events.insert(30, {'id': 30, 'done': False, 'room': 49, 'item_name': 'gummy grip',
-                   'first_time_text': 'When you lay the items on the workbench, you see what to do. The allen claw, smooth bar, and gummy grip fit together with a satisfying snap. '
+                   'first_time_text': 'When you lay your items on the workbench, you see what to do. The allen claw, smooth bar, and gummy grip fit together with a satisfying snap. '
                                       'You\'ve made the override lever!', 'already_done_text': 'Nothing happens.'})
 # testing will this event work without an item?
 events.insert(31, {'id': 21, 'done': False, 'room': 999, 'item_name': 'bridge door',
@@ -509,15 +524,33 @@ events.insert(41, {'id': 41, 'done': False, 'room': 47, 'item_name': 'clogged to
                   'first_time_text': 'It doesn\'t flush, and with all that clothing stuck inside, it seems like a bad idea to use it as designed.',
                   'already_done_text': 'It doesn\'t flush, and with all that clothing stuck inside, it seems like a bad idea to use it as designed.'})
 events.insert(42, {'id': 42, 'done': False, 'room': 47, 'item_name': 'astroplunger',
-                   'first_time_text': 'You apply your best plunging technique to the clogged toilet. After a vigorous effort, the you extract a drenched uniform. '
-                                      'The waste purification chemicals are causing it to quickly dissolve, but a key on a ring that was attached to the uniform belt remains.',
+                   'first_time_text': 'You apply your best plunging technique to the clogged toilet. After a vigorous effort, the you extract a drenched custodial uniform! '
+                                      'The waste purification solution is causing it to quickly dissolve, but a key on a ring that was attached to the uniform belt remains.',
                    'already_done_text': 'There isn\'t anything to plunge here.'})
 events.insert(43, {'id': 43, 'done': False, 'room': 48, 'item_name': 'metal key',
                   'first_time_text': 'With a little effort, you are able to unlock the door to the Workroom.',
                   'already_done_text': 'The workroom door is already unlocked.'})
 events.insert(44, {'id': 44, 'done': False, 'room': 49, 'item_name': 'workbench',
-                  'first_time_text': 'The workbench by itself doesn\'t do much. Try experimenting with other items.',
-                   'already_done_text': 'Did you even read the manual? The workbench by itself doesn\'t do much. Try using with other items.'})
+                  'first_time_text': 'The workbench by itself doesn\'t do much. Did you even read the manual? Try experimenting with other items.',
+                   'already_done_text': 'It still doesn\'t do anything. There has to be instructions for this thing.'})
+events.insert(45, {'id': 45, 'done': False, 'room': 999, 'item_name': 'digipad9',
+                   'first_time_text': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
+                              '\n\tThey\'re hunting the custodial staff. I guess it\'s because we have access to so much of the ship.'
+                              '\n\tSome of the team is hiding their uniforms. I guess the dark blue color gives us away. -B',
+                   'already_done_text': 'The digipad reads:'
+                              '\n\tThey\'re hunting the custodial staff. I guess it\'s because we have access to so much of the ship.'
+                              '\n\tSome of the team is hiding their uniforms. I guess the dark blue color gives us away. -B'})
+events.insert(46, {'id': 46, 'done': False, 'room': 999, 'item_name': 'workbench manual',
+                   'first_time_text': 'You scan the manual for relevant information.'
+                        '\n\t...Holding high-heat materials requires gloves reinforced with non-conductive fibers...'
+                        '\n\t...A workbench is only as effective as it is clean. Buy our patented Bleakwipes to keep your workspace factory-pure...'
+                        '\n\t...Most levers can be constructed with a bar, a grip for holding, and some kind of tip that will connect to...'
+                        '\n\t...Fuel cell containers are not worth modifying. StarClunk makes the best...',
+                  'already_done_text': 'You scan the manual again for relevant information.'
+                        '\n\t...Holding high-heat materials requires gloves reinforced with non-conductive fibers...'
+                        '\n\t...A workbench is only as effective as it is clean. Buy our patented Bleakwipes to keep your workspace factory-pure...'
+                        '\n\t...Most levers can be constructed with a bar, a grip for holding, and some kind of tip that will connect to...'
+                        '\n\t...Fuel cell containers are not worth modifying. StarClunk makes the best...'})
 
 creatures.append({'id': 0, 'name': 'Prison guard',
                   'description': 'The guard is 6 feet tall with a sturdy build, greenish skin, and eyes that are cloudy and dark. Its posture is full of anger. No weapons are visible, but its knuckles look pointy.',
