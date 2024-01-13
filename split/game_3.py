@@ -498,7 +498,7 @@ events.insert(32, {'id': 32, 'done': False, 'room': 44, 'item_name': 'code gener
 events.insert(33, {'id': 33, 'done': False, 'room': 45, 'item_name': 'override lever',
                    'first_time_text': 'The lever fits nicely into the socket. You pull it down and hear distant machinery grind into action. '
                                       'The lockdown console now reads:\n\t\"NO LOCKDOWN - Offline systems: none',
-                   'already_done_text': 'Inserting the lever and moving it around has no visible effect on the data displayed.'})
+                   'already_done_text': 'Re-inserting the lever and moving it around has no visible effect on the data displayed.'})
 events.insert(34, {'id': 34, 'done': False, 'room': 21, 'item_name': 'launch controls',
                    'first_time_text': 'You activate the launch controls.',
                    'already_done_text': 'You activate the launch controls.'})
@@ -531,7 +531,7 @@ events.insert(43, {'id': 43, 'done': False, 'room': 48, 'item_name': 'metal key'
                   'first_time_text': 'With a little effort, you are able to unlock the door to the Workroom.',
                   'already_done_text': 'The workroom door is already unlocked.'})
 events.insert(44, {'id': 44, 'done': False, 'room': 49, 'item_name': 'workbench',
-                  'first_time_text': 'The workbench by itself doesn\'t do much. Did you even read the manual? Try experimenting with other items.',
+                  'first_time_text': 'The workbench by itself doesn\'t do much. Try experimenting with other items. Did you read the directions?',
                    'already_done_text': 'It still doesn\'t do anything. There has to be instructions for this thing.'})
 events.insert(45, {'id': 45, 'done': False, 'room': 999, 'item_name': 'digipad9',
                    'first_time_text': 'Like other digipads you\'ve seen, this one contains messages sent by your crewmates.'
@@ -541,15 +541,15 @@ events.insert(45, {'id': 45, 'done': False, 'room': 999, 'item_name': 'digipad9'
                               '\n\tThey\'re hunting the custodial staff. I guess it\'s because we have access to so much of the ship.'
                               '\n\tSome of the team is hiding their uniforms. I guess the dark blue color gives us away. -B'})
 events.insert(46, {'id': 46, 'done': False, 'room': 999, 'item_name': 'workbench manual',
-                   'first_time_text': 'You scan the manual for relevant information.'
+                   'first_time_text': 'You thumb through the manual.'
                         '\n\t...Holding high-heat materials requires gloves reinforced with non-conductive fibers...'
                         '\n\t...A workbench is only as effective as it is clean. Buy our patented Bleakwipes to keep your workspace factory-pure...'
                         '\n\t...Most levers can be constructed with a bar, a grip for holding, and some kind of tip that will connect to...'
                         '\n\t...Fuel cell containers are not worth modifying. StarClunk makes the best...',
-                  'already_done_text': 'You scan the manual again for relevant information.'
+                  'already_done_text': 'You scan the manual again.'
                         '\n\t...Holding high-heat materials requires gloves reinforced with non-conductive fibers...'
-                        '\n\t...A workbench is only as effective as it is clean. Buy our patented Bleakwipes to keep your workspace factory-pure...'
                         '\n\t...Most levers can be constructed with a bar, a grip for holding, and some kind of tip that will connect to...'
+                        '\n\t...A workbench is only as effective as it is clean. Buy our patented Bleakwipes to keep your workspace factory-pure...'
                         '\n\t...Fuel cell containers are not worth modifying. StarClunk makes the best...'})
 
 creatures.append({'id': 0, 'name': 'Prison guard',
