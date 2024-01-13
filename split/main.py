@@ -1,7 +1,7 @@
 #! python3
 # TextGames
-# version 1.4.3
-# description: split space adventure into game_3.py module. more to be done.
+# version 1.4.4
+# description: added repeat command, fixed take and drop bugs
 
 
 # imports
@@ -20,24 +20,30 @@ def locale(current_room):
 
 
 def look_around(current_room):
+    global move
+    global last_move
+
     print('You are ' + world[current_room]['prefix'] + ' ' + world[current_room]['name'] + world[current_room]['name2'] + '.')
     print(world[current_room]['desc'])
     show_exits(current_room)
     show_things(current_room)
     show_creatures(current_room)
-
+    last_move = move
 
 def examine_item(current_room):
     global inventory_quantity
     global room_has_items
     global room_has_mobs
     global target
+    global move
+    global last_move
 
     update_things_in_room(current_room)
     if target in available_targets(current_room):
         for thing in things:
             if thing['name'].lower() == target.lower():
                 print(thing['description'])
+                last_move = move + ' ' + target
                 return
 
     if room_has_mobs:
@@ -53,6 +59,7 @@ def examine_item(current_room):
                         print(' ' + mob['status_hostile'])
                     else:
                         print(' ' + mob['status_neutral'])
+                last_move = move
                 return
 
     if room_has_items or inventory_quantity > 0 or room_has_mobs:
@@ -86,6 +93,7 @@ def examine_item(current_room):
         for thing in things:
             if thing['name'].lower() == choice:
                 print(thing['description'])
+                last_move = move + ' ' + choice
         for mob in creatures:
             if mob['name'].lower() == choice:
                 if mob['is_dead'] == True:
@@ -98,8 +106,10 @@ def examine_item(current_room):
                         print(' ' + mob['status_neutral'])
                     else:
                         print(' ' + mob['status_hostile'])
+                last_move = move + ' ' + choice
     else:
         print('There isn\'t anything to examine here. Go find something!')
+        last_move =  ' ' + move
 
 
 def creature_wellness(current, max):
@@ -170,6 +180,9 @@ def update_things_in_room(current_room):
 
 
 def show_inventory(quantity):
+    global move
+    global last_move
+
     if quantity > 0:
         print('You are carrying:')
         for thing in things:
@@ -177,12 +190,15 @@ def show_inventory(quantity):
                 print(thing['prefix'].capitalize() + ' ' + thing['name'])
     else:
         print('You aren\'t carrying anything.')
+    last_move = move
 
 
 def take_item(current_room):
     global inventory_quantity
     global room_has_items
     global target
+    global move
+    global last_move
     update_things_in_room(current_room)
 
     if room_has_items:
@@ -192,15 +208,23 @@ def take_item(current_room):
                 available_choices.append(thing['name'].lower())
         for thing in things:
             if thing['name'].lower() == target.lower():
-                if thing['moveable'] == True:
+                if thing['on_person'] == True:
+                    print('You already have the ' + thing['name'] + '.')
+                    last_move = move + ' ' + target
+                    return
+                if thing['moveable'] == True and thing['location'] == current_room:
                     thing['on_person'] = True
                     inventory_quantity = inventory_quantity + 1
                     # old print('You pick up ' + thing['prefix'] + ' ' + thing['name'] + '.')
                     print('You pick up the ' + thing['name'] + '.')
+                    last_move = move + ' ' + target
                     return
                 else:
                     # old print('You can\'t take ' + thing['prefix'] + ' ' + thing['name'] + '.')
-                    print('You can\'t take the ' + thing['name'] + '.')
+                    if thing['location'] != current_room:
+                        print('What ' + thing['name'] + '?')
+                    else:
+                        print('You can\'t take the ' + thing['name'] + '.')
                     return
 
         print('Items you see:')
@@ -222,17 +246,27 @@ def take_item(current_room):
                     thing['on_person'] = True
                     inventory_quantity = inventory_quantity + 1
                     print('You pick up the ' + thing['name'] + '.')
+                    last_move = move + ' ' + choice
                     # old print('You pick up ' + thing['prefix'] + ' ' + thing['name'] + '.')
                 else:
                     print('You can\'t take the ' + thing['name'] + '.')
+                    last_move = move + ' ' + choice
                     # old print('You can\'t take ' + thing['prefix'] + ' ' + thing['name'] + '.')
     else:
+        for thing in things:
+            if thing['name'].lower() == target.lower():
+                if thing['on_person'] == True:
+                    print('You already have the ' + thing['name'] + '.')
+                    last_move = move + ' ' + target
+                    return
         print('There aren\'t any items worth taking.')
 
 
 def drop_item(current_room):
     global inventory_quantity
     global target
+    global move
+    global last_move
 
     if inventory_quantity == 0:
         print('You aren\'t carrying anything.')
@@ -243,15 +277,20 @@ def drop_item(current_room):
         if target in available_targets(current_room):
             for thing in things:
                 if thing['name'].lower() == target.lower():
-                    thing['on_person'] = False
-                    thing['location'] = current_room
-                    user_has_items = True
-                    print('You drop the ' + thing['name'] + '.')
-                    # old print('You drop ' + thing['prefix'] + ' ' + thing['name'] + '.')
-                    inventory_quantity = inventory_quantity - 1
+                    if thing['on_person'] == False:
+                        print('You aren\'t carrying the ' + thing['name'] + '.')
+                    else:
+                        thing['on_person'] = False
+                        thing['location'] = current_room
+                        user_has_items = True
+                        print('You drop the ' + thing['name'] + '.')
+                        # old print('You drop ' + thing['prefix'] + ' ' + thing['name'] + '.')
+                        inventory_quantity = inventory_quantity - 1
+            last_move = move + ' ' + target
             return
         else:
             print('\"' + target + '\" is not in your inventory.')
+            last_move = move + ' ' + target
 
     if inventory_quantity > 0:
         available_choices = []
@@ -278,14 +317,18 @@ def drop_item(current_room):
                 print('You drop the ' + thing['name'] + '.')
                 # old print('You drop ' + thing['prefix'] + ' ' + thing['name'] + '.')
                 inventory_quantity = inventory_quantity - 1
+                last_move = move + ' ' + choice
     else:
         print('You aren\'t carrying anything.')
+        last_move = move
 
 
 def use_item(current_room):
     global inventory_quantity
     global room_has_items
     global target
+    global move
+    global last_move
 
     update_things_in_room(current_room)
     if target != '':
@@ -300,7 +343,7 @@ def use_item(current_room):
             else:
                 check_event(current_room, target)
             creature_attack(current_room)
-
+            last_move = move + ' ' + target
             return
         else:
             print('\"' + target + '\" is not available to use.')
@@ -339,6 +382,7 @@ def use_item(current_room):
         else:
             check_event(current_room, choice)
         creature_attack(current_room)
+        last_move = move + ' ' + choice
     else:
         print('There isn\'t anything you can use here.')
 
@@ -461,6 +505,9 @@ def remove_creature_fatigue(current_room):
 
 
 def player_wellness(current, max):
+    global move
+    global last_move
+
     percentage = current / max * 100
     if percentage > 75:
         print("You are in good shape. (" + str(current) + "\\" + str(max) + ')')
@@ -472,6 +519,7 @@ def player_wellness(current, max):
         print("You are seriously wounded. (" + str(current) + "\\" + str(max) + ')')
     else:
         print("You are dead.")
+    last_move = move
 
 
 def weapon_checker(item):
@@ -1043,13 +1091,32 @@ def show_exits(current_room):
         if world[destination]['visible']:
             print(full_direction(direction) + world[destination]['name'])
 
+def repeat_move():
+    global target
+    global choice
+    global move
+    global last_move
+
+    repeat_response = input('Enter \'Y\' or \'Yes\' to repeat "' + last_move.lower() + '": ')
+    if repeat_response.lower() == 'y' or repeat_response.lower == 'yes':
+        choice = last_move.lower()
+        target = extract_target(last_move)
+        return choice.lower()
+    else:
+        return ""
 
 def get_move():
     global target
     global choice
+    global move
+    global last_move
+
     print('What do you want to do?')
     choice = input()
     target = extract_target(choice)
+    if choice.lower() == 'r' or choice.lower() == 'repeat':
+        choice = repeat_move()
+        return choice.lower()
     while not (choice.lower() in allowed_moves or choice.lower() in allowed_actions):
         print('"' + choice + '" is not recognized. Please try again.')
         print('What do you want to do?')
@@ -1112,6 +1179,9 @@ def full_direction(short_dir):
 
 
 def show_help():
+    global move
+    global last_move
+
     print('COMMANDS'.center(72, '='))
     print('Here\'s a list of commands. They ARE NOT case sensitive.')
     print('To move around, you can type:')
@@ -1146,9 +1216,11 @@ def show_help():
     print('\t\'L\' or \'Look\' to look around')
     print('\t\'I\' or \'Inv\' or \'Inventory\' to see what you are carrying')
     print('\t\'H\' or \'Health\' to check how you\'re feeling')
+    print('\t\'R\' or \'Repeat\' to repeat the last valid command (without re-typing the whole thing!)')
     print('\t\'?\' or \'Help\' to see this list of commands')
     print('\t\'Quit\' to quit the game')
     print('COMMANDS'.center(72, '='))
+    last_move = move
 
 
 def show_short_help():
@@ -1402,7 +1474,7 @@ def initialize_engine():
     allowed_moves = ['n', 'north', 's', 'south', 'e', 'east', 'w', 'west', 'u', 'up', 'd', 'down', 'ne', 'northeast',
                      'nw', 'northwest', 'se', 'southeast', 'sw', 'southwest']
     allowed_actions = ['l', 'look', 'x', 'examine', 'use', 'take', 'drop', 'i', 'inv', 'inventory', '?', 'help', 'quit', 'h',
-                       'health']
+                       'health', 'r', 'repeat']
     inventory_quantity = 0
     room_has_items = False
     room_has_mobs = False
@@ -1434,6 +1506,7 @@ print('')
 
 room = starting_room
 show_intro()
+last_move = ''
 while room != exit_room:
     remove_creature_fatigue(room)
 
@@ -1445,7 +1518,7 @@ while room != exit_room:
     if not locale_visited:
         locale(room)
         locale_visited = True
-    # repeating check if player dead as a result of special
+    # repeating check if player dies as a result of special
     if player_hp <= 0:
         print('\nThanks for playing!')
         print('')
@@ -1458,7 +1531,9 @@ while room != exit_room:
 
 
     move = get_move()
-    if move == '?' or move == 'help':
+    if move == "" or move == '' or move == None:
+        pass
+    elif move == '?' or move == 'help':
         show_help()
     elif move == 'l' or move == 'look':
         look_around(room)
@@ -1494,7 +1569,11 @@ while room != exit_room:
             room = new_room
             locale_visited = False
         else:
-            print('You can\'t go that way.')
+            if move.lower() == 'r' or move.lower() == 'repeat':
+                pass
+            else:
+                print('You can\'t go that way.')
+        last_move = move
     print('')
 
 if room == exit_room:
