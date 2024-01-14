@@ -1,0 +1,1 @@
+main imports the variables but not the functions. do i need to put these in a separate folder/file for modules? do i need to import them in a different way?
