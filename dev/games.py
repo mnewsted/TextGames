@@ -1,13 +1,14 @@
 #! python3
 # TextGames
-# version 1.6.0
-# description: adding save and load game functions. in progress.
+# version 1.6.1
+# description: added single game save/load to json file
+# to do: add warning / restrictions about loading different game #?
+# to do: scramble json to prevent cheating
 
 # imports
 import random
 import datetime
-
-from game_3 import things
+import json
 
 
 # functions
@@ -1689,6 +1690,8 @@ def show_help():
     print('\t\'H\' or \'Health\' to check how you\'re feeling')
     print('\t\'R\' or \'Repeat\' to repeat the last valid command (without re-typing the whole thing!)')
     print('\t\'V\' or \'Verbose\' to turn OFF and ON the automatic display of visible exits')
+    print('\t\'Save\' to save your progress')
+    print('\t\'Load\' to load your progress from a game you saved earlier')
     print('\t\'?\' or \'Help\' to see this list of commands')
     print('\t\'Quit\' to quit the game')
     print('COMMANDS'.center(72, '='))
@@ -1709,24 +1712,51 @@ def toggle_verbose():
 
 
 def save_game():
-    print('Are you sure you want to save your progress?')
+    # game will allow user to save game progress whether saved game exists or not
+    if check_for_saved_games('save'):
+        print('Are you sure you want to save your current progress and overwrite this earlier saved game?')
+    else:
+        print('Are you sure you want to save your progress?')
     save_confirm = input()
     if save_confirm.lower() == 'y' or save_confirm.lower() == 'yes':
-        print('We will keep track of which game you are playing and the time.')
+        print('We will keep track of which game # you are playing and the time you saved.')
         saved_game_note = input('Enter a note about your progress: ')
-        print('')
-        print(try_save_game(game_choice, datetime.datetime.now(), saved_game_note))
+        save_time = str(datetime.datetime.now())
+        # time_as_string = str(save_time.year) + '-' + str(save_time.month) + '-' + str(save_time.day) + ' ' + str(save_time.hour) + ':' + str(save_time.minute) + ':' + str(save_time.second)
+        print(try_save_game(game_choice, save_time, saved_game_note))
     else:
         print('Okay, back to it.')
 
 def load_saved_game():
-    print('Are you sure you want to load your progress from an earlier saved game?')
-    load_confirm = input()
-    if load_confirm.lower() == 'y' or load_confirm.lower() == 'yes':
-        print(try_load_saved_game())
-        locale(room)
+    if check_for_saved_games('load'):
+        print('Are you sure you want to overwrite your current progress with this saved game?')
+        load_confirm = input()
+        if load_confirm.lower() == 'y' or load_confirm.lower() == 'yes':
+            print(try_load_saved_game())
+            locale(room)
+        else:
+            print('Okay, back to it.')
+
+def check_for_saved_games(action):
+    try:
+        with open('saved_games.json', 'r') as f:
+            saved_data = json.load(f)
+    except FileNotFoundError:
+        if action == 'save': # attempting to save game, file not found, ok to save
+            return False
+        else: # attempting to load game, file not found, give news
+            print('Sorry. Saved game progress not found.')
+            return False
     else:
-        print('Okay, back to it.')
+        if action == 'save': # attempting to save game, file found, give warning
+            print('WARNING: This will overwrite your saved game progress.')
+            print('Saved game progress: Game # ' + str(saved_data['saved_game_choice']) + ' at ' + str(saved_data['saved_game_time']) + ' with note: ' + str(saved_data['saved_game_note']))
+            return True
+        else: # attempting to load game, file found, ok to load
+            print('WARNING: Loading a game will overwrite your current progress.')
+            print('We found this saved game progress: Game # ' + str(saved_data['saved_game_choice']) + ' at ' + str(saved_data['saved_game_time']) + ' with note: ' + str(saved_data['saved_game_note']))
+            return True
+
 
 def try_save_game( game, time, note):
     global saved_data
@@ -1773,7 +1803,16 @@ def try_save_game( game, time, note):
                    'saved_special_rooms': special_rooms,
                    'saved_verbose_mode': verbose_mode
                    }
-    return('Saved: Game ' + str(game) + ' at ' + str(time) + ' with note: ' + str(note))
+
+    try:
+        with open('saved_games.json', 'w') as f:
+            json.dump(saved_data, f, indent=4)
+    except FileNotFoundError:
+        print('Sorry. We could not save your game. Contact Tech Support.')
+        return
+    else:
+        return ('Saved: Game # ' + str(game) + ' at ' + str(time) + ' with note: ' + str(note))
+
 
 def try_load_saved_game():
     global saved_data
@@ -1796,6 +1835,9 @@ def try_load_saved_game():
     global locale_visited
     global special_rooms
     global verbose_mode
+
+    with open('saved_games.json', 'r') as f:
+        saved_data = json.load(f)
 
     things = saved_data['saved_things']
     world = saved_data['saved_world']
