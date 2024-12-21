@@ -1,9 +1,8 @@
 #! python3
 # TextGames
-# version 1.6.1
-# description: added single game save/load to json file
-# to do: add warning / restrictions about loading different game #?
-# to do: scramble json to prevent cheating
+# version 1.6.2
+# description: added mild complexity to combat practice, added separate saved game for each adventure
+# to do: scramble json to discourage cheating
 
 # imports
 import random
@@ -868,6 +867,26 @@ def do_event(event_id, current_room):
                            'on_person': True, 'moveable': True, 'is_weapon': False, 'no_drop': False})
             inventory_quantity = inventory_quantity + 1  ## add to inventory if appending thing on_person == True
             delete_thing('elixir')
+        # magic key drops from monster upon death
+        if event_id in [3]:
+            print(events[event_id]['first_time_text'])
+            events[event_id]['done'] = True
+            # create new object - LOCATION CAN BE ANY IF ON_PERSON IS TRUE OTHERWISE MATCH LOCATION TO EVENT ROOM OR USE current_room VARIABLE
+            things.append({'name': 'magic key', 'prefix': 'a',
+                           'description': 'The over-sized key is made of dark metal. It gives off a faint vibration.',
+                           'location': current_room, 'on_person': False, 'moveable': True, 'is_weapon': False, 'no_drop': False})
+        # unlock grate
+        if event_id in [2]:
+            print(events[event_id]['first_time_text'])
+            events[event_id]['done'] = True
+            # new room
+            world[2]['visible'] = True
+            # updated connecting room description - BE CAREFUL TO BUILD ON PREVIOUS DESCRIPTION
+            world[1][
+                'desc'] = 'Packed dirt covers the floor of this spacious arena. A door is in the northwest corner. On the south wall, the words "EXIT BELOW" are painted in what could be dried blood. Or maybe ketchup? Below it is a large pit. You could probably climb down into it.'
+            # updated connecting room exits - BE CAREFUL TO INCLUDE PREVIOUS EXITS
+            world[1]['exits'] = {'nw': 0, 'd': 2}
+            delete_thing('locked grate')
 
     elif game_choice == '3':
 
@@ -1713,7 +1732,7 @@ def toggle_verbose():
 
 def save_game():
     # game will allow user to save game progress whether saved game exists or not
-    if check_for_saved_games('save'):
+    if check_for_saved_games('save', game_choice):
         print('Are you sure you want to save your current progress and overwrite this earlier saved game?')
     else:
         print('Are you sure you want to save your progress?')
@@ -1727,19 +1746,21 @@ def save_game():
     else:
         print('Okay, back to it.')
 
-def load_saved_game():
-    if check_for_saved_games('load'):
+def load_saved_game( ):
+    if check_for_saved_games('load', game_choice):
         print('Are you sure you want to overwrite your current progress with this saved game?')
         load_confirm = input()
         if load_confirm.lower() == 'y' or load_confirm.lower() == 'yes':
-            print(try_load_saved_game())
+            print(try_load_saved_game( game_choice))
             locale(room)
         else:
             print('Okay, back to it.')
 
-def check_for_saved_games(action):
+def check_for_saved_games(action, game):
+    saved_game_file = 'saved_game' + game + '.json'
+
     try:
-        with open('saved_games.json', 'r') as f:
+        with open(saved_game_file, 'r') as f:
             saved_data = json.load(f)
     except FileNotFoundError:
         if action == 'save': # attempting to save game, file not found, ok to save
@@ -1803,9 +1824,10 @@ def try_save_game( game, time, note):
                    'saved_special_rooms': special_rooms,
                    'saved_verbose_mode': verbose_mode
                    }
+    saved_game_file = 'saved_game' + game + '.json'
 
     try:
-        with open('saved_games.json', 'w') as f:
+        with open(saved_game_file, 'w') as f:
             json.dump(saved_data, f, indent=4)
     except FileNotFoundError:
         print('Sorry. We could not save your game. Contact Tech Support.')
@@ -1814,7 +1836,7 @@ def try_save_game( game, time, note):
         return ('Saved: Game # ' + str(game) + ' at ' + str(time) + ' with note: ' + str(note))
 
 
-def try_load_saved_game():
+def try_load_saved_game( game ):
     global saved_data
     global things
     global world
@@ -1836,7 +1858,9 @@ def try_load_saved_game():
     global special_rooms
     global verbose_mode
 
-    with open('saved_games.json', 'r') as f:
+    saved_game_file = 'saved_game' + game + '.json'
+
+    with open(saved_game_file, 'r') as f:
         saved_data = json.load(f)
 
     things = saved_data['saved_things']
@@ -2070,10 +2094,10 @@ def load_game(choice):
         world.insert(0, {'visible': True, 'name': 'Start', 'prefix': 'at the', 'name2': '',
                          'desc': 'This bare room is an octagon. You see a door in the southeast wall.',
                          'exits': {'se': 1}})
-        world.insert(1, {'visible': True, 'name': 'End', 'prefix': 'at the', 'name2': '',
-                         'desc': 'Packed dirt covers the floor of this spacious arena. A door is in the northwest corner. On the south wall, the word "EXIT" is painted in what could be dried blood. Or maybe ketchup? Below it is a large pit. You could probably climb down into it.',
-                         'exits': {'nw': 0, 'd': 2}})
-        world.insert(2, {'visible': True, 'name': 'Exit', 'prefix': 'out the', 'name2': '', 'desc': 'End description', 'exits': {}})
+        world.insert(1, {'visible': True, 'name': 'Exit', 'prefix': 'at the', 'name2': '',
+                         'desc': 'Packed dirt covers the floor of this spacious arena. A door is in the northwest corner. On the south wall, the words "EXIT BELOW" are painted in what could be dried blood. Or maybe ketchup? Below it is a large pit covered by an old grate.',
+                         'exits': {'nw': 0}})
+        world.insert(2, {'visible': True, 'name': 'End', 'prefix': 'out the', 'name2': '', 'desc': 'End description', 'exits': {}})
         starting_room = 0
         exit_room = 2
         player_hp = 100
@@ -2086,18 +2110,27 @@ def load_game(choice):
         things.append({'name': 'elixir', 'prefix': 'an',
                        'description': 'A small glass bottle contains a bright green liquid. The label reads: "Drink for fast-acting relief."',
                        'location': 1, 'on_person': False, 'moveable': True, 'is_weapon': False, 'no_drop': False})
+        things.append({'name': 'locked grate', 'prefix': 'a', 'description': 'An ancient lattice of metal strips blocks access to the pit below, and sweet freedom. There is a large lock with a dusty keyhole holding the grate in place.',
+                        'location': 1, 'on_person': False, 'moveable': False, 'is_weapon': False, 'no_drop': False})
         events.insert(0, {'id': 0, 'done': False, 'room': 999, 'item_name': 'hammer',
                           'first_time_text': 'You swing the hammer.', 'already_done_text': 'You swing the hammer.'})
         events.insert(1, {'id': 1, 'done': False, 'room': 1, 'item_name': 'elixir',
                           'first_time_text': 'You open the bottle and gulp down the contents. It tastes like ecto-cooler. Regardless, you feel a surge of wellness in your body.',
                           'already_done_text': 'The small bottle is empty. What a shame.'})
+        events.insert(3, {'id': 3, 'done': False, 'room': 999, 'item_name': 'magic key',
+                          'first_time_text': 'As the monster crumbles into a heap, a metallic object clangs onto the floor.',
+                          'already_done_text': 'Come on, think about it. You can figure this out.'})
+        events.insert(2, {'id': 2, 'done': False, 'room': 1, 'item_name': 'magic key',
+                          'first_time_text': 'You have to force the magic key into the keyhole, but when you turn it, the lock mechanism cracks apart. The grate slides open revealing a surprisingly inviting hole in the ground.',
+                          'already_done_text': 'The pit is now accessible.'})
+
         creatures.append({'id': 0, 'name': 'Monster',
                           'description': 'The monster is about 7 feet tall, covered in yellow fur, and shows sharp teeth and claws.',
                           'room': 0, 'max_hp': 100, 'current_hp': 100, 'is_dead': False, 'is_hostile': False,
                           'status_neutral': 'It isn\'t interested in you.', 'status_hostile': 'It\'s very mad at you.',
-                          'damage': 20, 'hit_bonus': 20, 'attack_chance': 75, 'is_fatigued': False, 'death_event': 0, 'was_seen': False,
+                          'damage': 20, 'hit_bonus': 20, 'attack_chance': 75, 'is_fatigued': False, 'death_event': 3, 'was_seen': False,
                           'dead_description': 'The sharp teeth and claws of the monster aren\'t so scary now that it\'s dead.' })
-        intro_text = '*** Welcome to Combat practice ***\n\nThis is just a small world to help you get used to combat.\nWhen you get tired of fighting, just drop into the pit.\n'
+        intro_text = '*** Welcome to Combat practice ***\n\nThis is just a small world to help you get used to combat.\nWhen you get tired of fighting, just drop into the pit.\nUnfortunately, the pit is covered by a locked grate. Who has the key?\m'
         outro_text = 'Welp, you survived. The real challenge lies ahead.'
 
     elif choice == '3':
