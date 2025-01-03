@@ -1,13 +1,14 @@
 #! python3
 # TextGames
-# version 1.6.2
-# description: added mild complexity to combat practice, added separate saved game for each adventure
-# to do: scramble json to discourage cheating
+# version 1.6.3
+# description: scrambled saved game data, formatted save timestamp, added game loading instruction, tweaked file exceptions
+
 
 # imports
 import random
 import datetime
 import json
+import base64
 
 
 # functions
@@ -86,7 +87,7 @@ def examine_item(current_room):
                     available_choices.append(thing['name'].lower())
         if inventory_quantity > 0:
             for thing in things:
-                if (thing['on_person'] == True):
+                if thing['on_person'] == True:
                     print(thing['name'].capitalize())
                     available_choices.append(thing['name'].lower())
         print('What do you want to examine? (type the name or press ENTER for none)')
@@ -176,12 +177,12 @@ def update_things_in_room(current_room):
     global room_has_mobs
     visible_items = 0
     for thing in things:
-        if (thing['location'] == current_room and thing['on_person'] == False):
+        if thing['location'] == current_room and thing['on_person'] == False:
             visible_items = visible_items + 1
             room_has_items = True
     if room_has_mobs:
         for mob in creatures:
-            if (mob['room'] == current_room and mob['name'].lower() == target):
+            if mob['room'] == current_room and mob['name'].lower() == target:
                 visible_items = visible_items + 1
                 room_has_items = True
 
@@ -214,7 +215,7 @@ def take_item(current_room):
     if room_has_items:
         available_choices = []
         for thing in things:
-            if (thing['location'] == current_room and thing['on_person'] == False):
+            if thing['location'] == current_room and thing['on_person'] == False:
                 available_choices.append(thing['name'].lower())
         for thing in things:
             if thing['name'].lower() == target.lower():
@@ -309,7 +310,7 @@ def drop_item(current_room):
         available_choices = []
         print('Items you are carrying:')
         for thing in things:
-            if (thing['on_person'] == True):
+            if thing['on_person'] == True:
                 print(thing['name'].capitalize())
                 available_choices.append(thing['name'].lower())
         print('What item do you want to drop? (type the item name or press ENTER for none)')
@@ -378,12 +379,12 @@ def use_item(current_room):
         print('Items you can use:')
         if room_has_items:
             for thing in things:
-                if (thing['location'] == current_room and thing['on_person'] == False):
+                if thing['location'] == current_room and thing['on_person'] == False:
                     print(thing['name'].capitalize())
                     available_choices.append(thing['name'].lower())
         if inventory_quantity > 0:
             for thing in things:
-                if (thing['on_person'] == True):
+                if thing['on_person'] == True:
                     print(thing['name'].capitalize())
                     available_choices.append(thing['name'].lower())
         print('What item do you want to use? (type the item name or press ENTER for none)')
@@ -493,7 +494,7 @@ def creature_attack(current_room):
     if room_has_mobs:
         for mob in creatures:
             if mob['room'] == current_room and mob['is_dead'] == False and mob['is_hostile'] == True:
-                if (mob['is_fatigued'] == False and mob['attack_chance'] >= random.randrange(1, 101)):
+                if mob['is_fatigued'] == False and mob['attack_chance'] >= random.randrange(1, 101):
                     print(mob['name'] + ' attacks!')
                     mob['is_fatigued'] = True
                     if (random.randrange(1, 101) + mob['hit_bonus']) > 50:
@@ -531,7 +532,7 @@ def creature_attack_block(current_room):
     if room_has_mobs:
         for mob in creatures:
             if mob['room'] == current_room and mob['is_dead'] == False and mob['is_hostile'] == True:
-                if (mob['is_fatigued'] == False and mob['attack_chance'] >= random.randrange(1, 101)):
+                if mob['is_fatigued'] == False and mob['attack_chance'] >= random.randrange(1, 101):
                     print('\n' + mob['name'] + ' attacks!')
                     mob['is_fatigued'] = True
                     if (random.randrange(1, 101) + mob['hit_bonus']) > 50:
@@ -1529,7 +1530,7 @@ def do_special(current_room):
                 else:
                     print('A gentle breeze plays across your round body. Feels nice.')
                 player_wellness(player_hp, 100)
-        if room_has_mobs == False and current_room > 12 and current_room < 30: # inside most of lake and no mobs present
+        if room_has_mobs == False and current_room > 12 and current_room < 30: # inside most of the lake and no mobs present
             special_chance = random.randrange(1, 101)
             if special_chance >= 79:
                 special_type = random.randrange(1, 6)
@@ -1740,8 +1741,8 @@ def save_game():
     if save_confirm.lower() == 'y' or save_confirm.lower() == 'yes':
         print('We will keep track of which game # you are playing and the time you saved.')
         saved_game_note = input('Enter a note about your progress: ')
-        save_time = str(datetime.datetime.now())
-        # time_as_string = str(save_time.year) + '-' + str(save_time.month) + '-' + str(save_time.day) + ' ' + str(save_time.hour) + ':' + str(save_time.minute) + ':' + str(save_time.second)
+        unformatted_save_time = datetime.datetime.now()
+        save_time = unformatted_save_time.strftime("%B %d, %Y at %H:%M:%S %p")
         print(try_save_game(game_choice, save_time, saved_game_note))
     else:
         print('Okay, back to it.')
@@ -1757,11 +1758,14 @@ def load_saved_game( ):
             print('Okay, back to it.')
 
 def check_for_saved_games(action, game):
-    saved_game_file = 'saved_game' + game + '.json'
+    encoded_saved_game_file = 'saved_game' + game + '.sav'
 
     try:
-        with open(saved_game_file, 'r') as f:
-            saved_data = json.load(f)
+        with open(encoded_saved_game_file, 'r') as f:
+            base64_data = f.read()
+        decoded_saved_data = base64.b64decode(base64_data)
+        saved_data = json.loads(decoded_saved_data)
+
     except FileNotFoundError:
         if action == 'save': # attempting to save game, file not found, ok to save
             return False
@@ -1771,16 +1775,16 @@ def check_for_saved_games(action, game):
     else:
         if action == 'save': # attempting to save game, file found, give warning
             print('WARNING: This will overwrite your saved game progress.')
-            print('Saved game progress: Game # ' + str(saved_data['saved_game_choice']) + ' at ' + str(saved_data['saved_game_time']) + ' with note: ' + str(saved_data['saved_game_note']))
+            print('We found this saved game progress: Game # ' + str(saved_data['saved_game_choice']) + ' on ' + str(saved_data['saved_game_time']) + ' with note: ' + str(saved_data['saved_game_note']))
             return True
         else: # attempting to load game, file found, ok to load
             print('WARNING: Loading a game will overwrite your current progress.')
-            print('We found this saved game progress: Game # ' + str(saved_data['saved_game_choice']) + ' at ' + str(saved_data['saved_game_time']) + ' with note: ' + str(saved_data['saved_game_note']))
+            print('We found this saved game progress: Game # ' + str(saved_data['saved_game_choice']) + ' on ' + str(saved_data['saved_game_time']) + ' with note: ' + str(saved_data['saved_game_note']))
             return True
 
 
 def try_save_game( game, time, note):
-    global saved_data
+    #global saved_data
     global things
     global world
     global events
@@ -1824,20 +1828,22 @@ def try_save_game( game, time, note):
                    'saved_special_rooms': special_rooms,
                    'saved_verbose_mode': verbose_mode
                    }
-    saved_game_file = 'saved_game' + game + '.json'
+    encoded_saved_game_file = 'saved_game' + game + '.sav'
+
+    json_saved_data = json.dumps(saved_data)
+    encoded_saved_data = base64.b64encode(json_saved_data.encode('utf-8'))
 
     try:
-        with open(saved_game_file, 'w') as f:
-            json.dump(saved_data, f, indent=4)
+        with open(encoded_saved_game_file, "wb") as file:
+            file.write(encoded_saved_data)
     except FileNotFoundError:
-        print('Sorry. We could not save your game. Contact Tech Support.')
-        return
+        return 'Sorry. We could not save your game. Contact Tech Support.\n'
     else:
-        return ('Saved: Game # ' + str(game) + ' at ' + str(time) + ' with note: ' + str(note))
+        return 'Saved: Game # ' + str(game) + ' on ' + str(time) + ' with note: ' + str(note)
 
 
 def try_load_saved_game( game ):
-    global saved_data
+    #global saved_data
     global things
     global world
     global events
@@ -1858,10 +1864,15 @@ def try_load_saved_game( game ):
     global special_rooms
     global verbose_mode
 
-    saved_game_file = 'saved_game' + game + '.json'
+    encoded_saved_game_file = 'saved_game' + game + '.sav'
 
-    with open(saved_game_file, 'r') as f:
-        saved_data = json.load(f)
+    try:
+        with open(encoded_saved_game_file, 'r') as f:
+            base64_data = f.read()
+        decoded_saved_data = base64.b64decode(base64_data)
+        saved_data = json.loads(decoded_saved_data)
+    except FileNotFoundError:
+        return 'Sorry. We could not load your game. Contact Tech Support.\n'
 
     things = saved_data['saved_things']
     world = saved_data['saved_world']
@@ -1883,7 +1894,6 @@ def try_load_saved_game( game ):
     special_rooms = saved_data['saved_special_rooms']
     verbose_mode = saved_data['saved_verbose_mode']
     return('Game loaded!\n')
-
 
 
 def show_short_help():
@@ -3084,7 +3094,7 @@ def initialize_engine():
     special_rooms = []
     special_done = []
     verbose_mode = True
-    saved_data = {}
+    # saved_data = {}
 
 def select_game():
     global available_games
@@ -3093,6 +3103,8 @@ def select_game():
     print('2 - Combat practice')
     print('3 - Space adventure')
     print('4 - Lake Tortuga')
+    print('If you want to continue a saved game, select the game by number then type \'load\'.')
+
     game_choice = input('Your choice? ')
     while game_choice not in available_games:
         print('Enter a number from the above list to choose a text game.')
@@ -3135,7 +3147,7 @@ while room != exit_room:
 
 
     move = get_move()
-    if move == "" or move == '' or move == None:
+    if move == "" or move == '' or move is None:
         pass
     elif move == '?' or move == 'help':
         show_help()
