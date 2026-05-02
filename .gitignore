@@ -1,0 +1,26 @@
+# Ignore old version files and junk storage
+main_*.py
+text_game_*.py
+text_games_*.py
+new/
+busted/
+oo/
+split/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.py~
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+
+# Build artifacts
+*.exe
