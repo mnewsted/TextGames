@@ -24,3 +24,6 @@ __pycache__/
 
 # Build artifacts
 *.exe
+
+# Save files
+*.sav
